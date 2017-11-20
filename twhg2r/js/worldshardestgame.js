@@ -43,29 +43,24 @@ const SCREENS = {
         gameCenterWall : {
             top : 100,
             bottom : 355,
-            left : 380, 
-            right : 623,
+            left : 384, 
+            right : 634,
             },
 
-        gameLeftCorner : {
+        gameLeftWall : {
+            top : 142,
+            bottom : 312,
             left: 213,
-            right : 380,
-            top : 140,
-            bottom : 310,
+            right : 384,
+
         },
 
-        gameRightCorner : {
-            left : 623,
-            right : 803,
-            top : 140,
-            bottom : 310,
-        },
+        gameRightWall : {
+            top : 142,
+            bottom : 312,
+            left : 634,
+            right : 804,
 
-        gameRightGreen : {
-            left : 713,
-            right : 803,
-            top : 140,
-            bottom : 310,
         }
     }
 }
@@ -97,22 +92,27 @@ const COINS = {
 var obs;
 var coins;
 var crashSound;
-var themeSound;
-var coinSound;
-var winned = false;
-var collectCoins = [false, false, false];
 var deathTime = 0;
 var wallCenter = SCREENS.screen3.gameCenterWall;   
-var wallLeft = SCREENS.screen3.gameLeftCorner;   
-var wallRight = SCREENS.screen3.gameRightCorner;
-var rightGreen = SCREENS.screen3.gameRightGreen;
-var allCoinsCollected = collectCoins[0] && collectCoins[1] && collectCoins[2];
+var wallLeft = SCREENS.screen3.gameLeftWall;   
+var wallRight = SCREENS.screen3.gameRightWall;
+
+//create a list with 12 coordinates representing the boundaries of the map
+var map = [[wallLeft.left, wallLeft.top], [wallLeft.right, wallLeft.top], 
+[wallCenter.left, wallCenter.top], [wallCenter.right, wallCenter.top], 
+[wallRight.left, wallRight.top], [wallRight.right, wallRight.top], 
+[wallRight.right, wallRight.bottom], [wallRight.left, wallRight.bottom], 
+[wallCenter.right, wallCenter.bottom], [wallCenter.left, wallCenter.bottom], 
+[wallLeft.right, wallLeft.bottom], [wallLeft.left, wallLeft.bottom]];
+var crashSound;
+var themeSound;
+var coinSound;
+var collectCoin = [false, false, false];
 
 
 //
 window.addEventListener("load", function(){
 
-    // createNewSpan();
 
     //DOM Loaded
     // document.getElementsByTagName("p")[0].style.display = "none";
@@ -125,17 +125,6 @@ window.addEventListener("load", function(){
     startGame();  
     
 });
-
-    // function createNewSpan() {
-    //     console.log("3sdasas");
-    //     var newItem = document.createElement("span");
-    //     var textNode = document.createTextNode("Pause");
-    //     newItem.appendChild(textNode);
-    //     var pNodes = document.getElementsByTagName("p");
-    //     var child = document.getElementsByTagName("span");
-    //     pNodes[0].insertBefore(newItem, child[1]);
-    // }
-
 
 /*
 function loadSplash(){
@@ -168,16 +157,13 @@ function startGame(){
     coins = new coinsForEat(game);
     myGamePiece = new component(20, 20, "red", 240, 210, "black", 3); 
     document.getElementsByTagName("span")[5].innerHTML = deathTime;
+    crashSound = new sound("soundeffects/RealisticPunch.mp3");
     themeSound = new sound("soundeffects/World'sHardestGame2ThemeSong.mp3");
     themeSound.play();
     coinSound = new sound("soundeffects/CoinCollect.wav");
-    crashSound = new sound("soundeffects/RealisticPunch.mp3");
-    console.log(isInBlock(myGamePiece, rightGreen));
-    console.log(isInBlock(myGamePiece, wallCenter));
-    console.log(allCoinsCollected);
-
 }
 
+//create a function to add "pause" and "mute" to the paragraph
 function createNewElement(text) {
     this.text = text;
     var span = document.createElement("span");
@@ -211,6 +197,7 @@ function component(width, height, color, x, y, colorStroke, lineWidth) {
     this.speedY = 0;
     this.x = x;
     this.y = y; 
+
     this.update = function(){
         ctx = game.context;
         ctx.fillStyle = color;
@@ -226,28 +213,14 @@ function component(width, height, color, x, y, colorStroke, lineWidth) {
         var leftPos = this.x;
         var rightPos = this.x + this.width;
 
-        if(isInXrange(leftPos) && isInXrange(rightPos)){
+        if(inside([leftPos+this.speedX,topPos+this.speedY]) && 
+           inside([rightPos+this.speedX,topPos+this.speedY]) && 
+           inside([rightPos+this.speedX,bottomPos+this.speedY]) && 
+           inside([leftPos+this.speedX,bottomPos+this.speedY])){
             this.x += this.speedX;
-        }
-        if(isInYrange(topPos) && isInYrange(bottomPos)){
             this.y += this.speedY;
         }
-        if(!isInXrange(leftPos)){
-            this.x -= this.speedX;
-            game.keys[37] = false;
-        }
-        if(!isInXrange(rightPos)){
-            this.x -= this.speedX;
-            game.keys[39] = false;
-        }
-        if(!isInYrange(topPos)){
-            this.y -= this.speedY;
-            game.keys[38] = false;
-        }
-        if(!isInYrange(bottomPos)){
-            this.y -= this.speedY;
-            game.keys[40] = false;
-        }
+
     }
 
     this.crashWith = function(otherobj) {
@@ -270,71 +243,43 @@ function component(width, height, color, x, y, colorStroke, lineWidth) {
     }
 }
 
-function isInXrange(intPos) {
-    if(isInBlock(myGamePiece, wallCenter)){
-        return intPos >= wallCenter.left && intPos <= wallCenter.right;
+//determine if a coordinate is inside the map
+function inside(point) {
+    var x = point[0], y = point[1];
+    var inside = false;
+    for(var i = 0, j = map.length - 1; i < map.length; j = i++) {
+        var xi = map[i][0], yi = map[i][1];
+        var xj = map[j][0], yj = map[j][1];
+
+        var intersect = ((yi > y) != (yj > y)) && 
+        (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+        if(intersect) 
+            inside = !inside;
     }
-    else{
-        return intPos > wallLeft.left && intPos < wallRight.right;
-    }
+    return inside;
 }
 
-function isInYrange(intPos) {
-    if(isInBlock(myGamePiece, wallCenter)){
-        return intPos > wallCenter.top && intPos < wallCenter.bottom;
-    }
-    else{
-        return intPos > wallLeft.top && intPos < wallLeft.bottom;
-    }
-}
 
-
-//determine if the block is the center part 
-// function isInCenter(myGamePiece){
-//     this.myGamePiece = myGamePiece;
-//     var topPos = myGamePiece.y;
-//     var bottomPos = myGamePiece.y + myGamePiece.height;
-//     var leftPos = myGamePiece.x;
-//     var rightPos = myGamePiece.x + myGamePiece.width;
-//     return topPos > wallCenter.top &&
-//            bottomPos < wallCenter.bottom &&
-//            leftPos > wallCenter.left &&
-//            rightPos < wallCenter.right; 
-// }
-
-//determine if the piece is in the destination
-function isInBlock(myGamePiece, block) {
-    this.myGamePiece = myGamePiece;
-    this.block = block;
-    var topPos = myGamePiece.y;
-    var bottomPos = myGamePiece.y + myGamePiece.height;
-    var leftPos = myGamePiece.x;
-    var rightPos = myGamePiece.x + myGamePiece.width;
-    return topPos > block.top &&
-           bottomPos < block.bottom &&
-           leftPos > block.left &&
-           rightPos < block.right; 
-}
 
 
 //
-function text(width, height, color, x, y, type) {
-  this.type = type;
-  this.width = width;
-  this.height = height;
-  this.speedX = 0;
-  this.speedY = 0; 
-  this.x = x;
-  this.y = y; 
-  this.update = function() {
-    ctx = game.context;
-    if (this.type == "text") {
-      ctx.font = this.width + " " + this.height;
-      ctx.fillStyle = color;
-      ctx.fillText(this.text, this.x, this.y);        
-    }
-  }
-}
+// function text(width, height, color, x, y, type) {
+//   this.type = type;
+//   this.width = width;
+//   this.height = height;
+//   this.speedX = 0;
+//   this.speedY = 0; 
+//   this.x = x;
+//   this.y = y; 
+//   this.update = function() {
+//     ctx = game.context;
+//     if (this.type == "text") {
+//       ctx.font = this.width + " " + this.height;
+//       ctx.fillStyle = color;
+//       ctx.fillText(this.text, this.x, this.y);        
+//     }
+//   }
+// }
 
 //Engine
 var game = {
@@ -392,6 +337,7 @@ function obstacles(game){
     }
 }
 
+
 function coinsForEat(game){
     //create the array of coins that will be animated
     this.game = game;
@@ -403,12 +349,13 @@ function coinsForEat(game){
         //loop through the coins array
         //draw the coins
         for (var i = 0; i < this.coins.length; i++){
-            if(!collectCoins[i]){
+            if(!collectCoin[i]){
                 this.coins[i].animate(this.game.getContext());
             }
         }
     }
 }
+
 
 // add two parameter colorStroke and lineWidth to draw the outer stroke of the balls
 function ball(name, x, y, radius, speed, color, colorStroke, lineWidth){
@@ -455,56 +402,57 @@ function coin(name, x, y, radius, color, colorStroke, lineWidth){
         ctx.fill();
         ctx.stroke();
 
+        //animate 
+
     }
 }
 
-
 function update() {
+    //crash with the blue ball
     for(var i = 0; i < obs.balls.length; i++){
         if(myGamePiece.crashWith(obs.balls[i])){
             deathTime += 1;
             crashSound.play();
             game.stop();
             themeSound.stop();
-            collectCoins = [false, false, false];
+            collectCoin = [false, false, false];
             setTimeout(startGame(), 2000);
             return;
         }
     }
 
-    for(var i = 0; i < coins.coins.length; i++) {
+    //eat a coin
+    for(var i = 0; i < collectCoin.length; i++){
         if(myGamePiece.crashWith(coins.coins[i])){
-            if(!collectCoins[i]){
+            if(!collectCoin[i])
                 coinSound.play();
-            }
-            collectCoins[i] = true;
+            collectCoin[i] = true;
             game.clear();
         }
     }
 
-    if(allCoinsCollected && isInBlock(myGamePiece, rightGreen)){
+    // win the game
+    if(collectCoin[0] && collectCoin[1] && collectCoin[2] &&
+     myGamePiece.x > 720){
+        alert("you made it!");
         game.stop();
         themeSound.stop();
-        winned = true;
         deathTime = 0;
-        winned = false;
+        collectCoin = [false, false, false];
         setTimeout(startGame(), 2000);
         return;
     }
 
-        game.clear();
-        obs.animate();
-        coins.animate();
-        game.speedX = 0;
-        game.speedY = 0;
-        stopMove();
-        if(game.keys && game.keys[37]){myGamePiece.speedX = -2;}
-        if(game.keys && game.keys[39]){myGamePiece.speedX = 2;}
-        if(game.keys && game.keys[38]){myGamePiece.speedY = -2;}
-        if(game.keys && game.keys[40]){myGamePiece.speedY = 2;}
-        myGamePiece.newPos();
-        myGamePiece.update();
-
+    game.clear();
+    obs.animate();
+    coins.animate();
+    stopMove();
+    if(game.keys && game.keys[37]){myGamePiece.speedX = -2;}
+    if(game.keys && game.keys[39]){myGamePiece.speedX = 2;}
+    if(game.keys && game.keys[38]){myGamePiece.speedY = -2;}
+    if(game.keys && game.keys[40]){myGamePiece.speedY = 2;}
+    myGamePiece.newPos();
+    myGamePiece.update();
 }
 
 
