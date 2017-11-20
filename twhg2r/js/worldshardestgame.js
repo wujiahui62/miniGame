@@ -416,7 +416,7 @@ function update() {
             game.stop();
             themeSound.stop();
             collectCoin = [false, false, false];
-            setTimeout(startGame(), 2000);
+            setTimeout(startGame, 1000);
             return;
         }
     }
@@ -434,12 +434,13 @@ function update() {
     // win the game
     if(collectCoin[0] && collectCoin[1] && collectCoin[2] &&
      myGamePiece.x > 720){
-        alert("you made it!");
         game.stop();
         themeSound.stop();
         deathTime = 0;
         collectCoin = [false, false, false];
-        setTimeout(startGame(), 2000);
+        // alert("you made it!");
+        // window.addEventListener('onclick', game.clear());
+        setTimeout(startGame, 1000);
         return;
     }
 
