@@ -1,44 +1,7 @@
-/*
-    Kent State University
-    CS 44105/54105 Web Programming I
-    Fall 2017
-    Assignment 3
-    The World’s Hardest Game 2 Remake
-    worldshardestgame.js
-    Author 1: Abdulkareem Alali, aalali1@kent.edu
-    Author 2: Jiahui Wu, wujiahui62@gmail.com
-*/
-
-    // var canvas = document.getElementsByTagName("canvas");
-    // var c = canvas[0].getContext('2d');
-
-
-    // var grd1 = c.createLinearGradient(0, 450, 1000, 50);
-    // grd1.addColorStop(0, "#000000");
-    // grd1.addColorStop(0.2, "#505050");
-    // grd1.addColorStop(1, "#000000");
-    // c.fillStyle = grd1;
-    // c.fillRect(0, 50, 1000, 490);
-
-
-
-
-
-
-
 const DARKBLUE = 'rgb(0,0,139)';
 const BLACK = 'black';
 const BACKGROUND_IMAGE = "images/world-hardest-game-2-bg-level-1.png";
 const SCREENS = {
-
-    screen1 : {
-
-    },
-
-    screen2 : {
-
-    },
-
     screen3 : {
         gameCenterWall : {
             top : 100,
@@ -84,9 +47,16 @@ const BALLS = {
 }
 
 const COINS = {
-    coin1 : ["p1b1", 421.5, 269, 6, 'yellow', BLACK, 3],
-    coin2 : ["p1b2", 507, 182, 6, 'yellow', BLACK, 3],
-    coin3 : ["p1b3", 591.5, 269, 6, 'yellow', BLACK, 3],
+    coin1 : ["p1b1", 421.5, 269, 7, 'yellow', BLACK, 3],
+    coin2 : ["p1b2", 507, 182, 7, 'yellow', BLACK, 3],
+    coin3 : ["p1b3", 591.5, 269, 7, 'yellow', BLACK, 3],
+}
+
+const BEGIN = {
+    left: 437,
+    right: 587,
+    top: 459,
+    bottom: 685,
 }
 
 var obs;
@@ -108,47 +78,263 @@ var crashSound;
 var themeSound;
 var coinSound;
 var collectCoin = [false, false, false];
+var beginned = false;
+var button;
+var text1;
+var text2;
+var text3;
+var text4;
+var text5;
+var text6;
+var text1_s;
+var text2_s;
+var text3_s;
+var text4_s;
+var text5_s;
+var text6_s;
+var warning;
+var pauseSwitch = true;
+var soundSwitch = true;
 
 
-//
+var newStyle = document.createElement('style');
+newStyle.appendChild(document.createTextNode('@font-face {font-family: mono45-headline;src: url("https://use.typekit.net/af/2242e8/00000000000000003b9afa2a/27/l?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n5&v=3") format("woff2"),url("https://use.typekit.net/af/2242e8/00000000000000003b9afa2a/27/d?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n5&v=3") format("woff"),url("https://use.typekit.net/af/2242e8/00000000000000003b9afa2a/27/a?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n5&v=3") format("opentype");'));
+document.head.appendChild(newStyle);
+
 window.addEventListener("load", function(){
+    loadSplash();
+    });
 
-
-    //DOM Loaded
-    // document.getElementsByTagName("p")[0].style.display = "none";
-
-    //display screen1
-    // loadSplash();
-    createNewElement("Mute");
-    createNewElement("Pause");
-
-    startGame();  
-    
-});
-
-/*
 function loadSplash(){
-    drawSplash();
-    window.setTimeout(function(){
-        removeProgressBar();
-        drawBeginButton();
+    document.getElementsByTagName("p")[0].style.visibility = "hidden";
+    //this page is not updated
+    drawDisplay();
+    //start to update the page with setInterval after 2 seconds
+    setTimeout(function() {
+        loadingPage.init();
+        text1 = new drawText(35, 100, "white", "35px Arial", "THE WORLD'S");
+        text2 = new drawTextStroke(35, 230, "white", "172px mono45-headline", "HARDEST GAME", 6);
+        text3 = new drawTextStroke(35, 230, "black", "172px mono45-headline", "HARDEST GAME", 3);
+        text4 = new drawText(35, 230, "blue", "172px mono45-headline", "HARDEST GAME");
+        text5 = new drawText(730, 268, "white", "35px Arial", "VERSION 2.0");
+        button = new drawBeginButton(420, 400, "white", "50px Arial", "BEGIN");
     }, 2000);
-    
 }
 
-function drawBeginButton(){
+var loadingPage = {
+    canvas: null,
+    context : null,
+    staticInit : function() {
+        this.canvas = document.querySelector("canvas");
+        this.context = this.canvas.getContext("2d");
+    },
 
-    document.getElementsByTagName('canvas').addEventListener('click', function() {
-        // add math logic to determine click loation is on begin button
-        // clear canvans
-        drawWarning();
+    init : function() {
+        this.canvas = document.querySelector("canvas");
+        this.context = this.canvas.getContext("2d");
+        this.interval = setInterval(updateSplash, 20);
+        window.addEventListener('mousedown', function (e) {
+            loadingPage.x = e.pageX;
+            loadingPage.y = e.pageY;
+            // alert(loadingPage.x + " " + loadingPage.y);
+        })
+        window.addEventListener('mouseup', function (e) {
+            loadingPage.x = false;
+            loadingPage.y = false;
+        })
+        window.addEventListener('touchstart', function (e) {
+            loadingPage.x = e.pageX;
+            loadingPage.y = e.pageY;
+        })
+        window.addEventListener('touchend', function (e) {
+            loadingPage.x = false;
+            loadingPage.y = false;
+        })
+        // window.addEventListener('mousemove', function (e) {
+        //     loadingPage.x = e.pageX;
+        //     loadingPage.y = e.pageY;
+        // })
 
-        // remove this event binding
-}); 
+    },
+
+    //background of screen 1
+    drawBackground: function() {
+        if(this.context != undefined) {
+            // this.context.beginPath();
+            grd = this.context.createLinearGradient(0, 0, this.canvas.width, 0);
+            grd.addColorStop(0, "black");
+            grd.addColorStop(1, "grey");
+            this.context.fillStyle = grd;
+            this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        }
+    },
+
+    //background of screen 2
+    drawBackground2: function() {
+        if(this.context != undefined) {
+            // this.context.beginPath();
+            grd = this.context.createLinearGradient(0, 0, 0, this.canvas.height);
+            grd.addColorStop(0, "#E8E9FE");
+            grd.addColorStop(1, "#AFB1FE");
+            this.context.fillStyle = grd;
+            this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        }
+    },
+
+    clear : function() {
+        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    },
+
+    stop : function() {
+        clearInterval(this.interval);
+    }   
+}
+
+//display the first image onload
+function drawDisplay() {
+    loadingPage.staticInit();
+    loadingPage.drawBackground();
+    text1_s = drawTextStatic(35, 100, "white", "35px Arial", "THE WORLD'S");
+    text2_s = drawTextStrokeStatic(35, 230, "white", "172px mono45-headline", "HARDEST GAME", 6);
+    text3_s = drawTextStrokeStatic(35, 230, "black", "172px mono45-headline", "HARDEST GAME", 3);
+    text4_s = drawTextStatic(35, 230, "blue", "172px mono45-headline", "HARDEST GAME");
+    text5_s = drawTextStatic(730, 268, "white", "35px Arial", "VERSION 2.0");
+    loadingBar = drawLoadingBar(100, 500, 500, 20, "white");
+    text6_s = drawTextStatic(160, 400, "white", "15px Arial", "This is the world's hardest game. It is harder than any game you have ever played, or ever will play.");
+}
+
+//draw text with no update
+function drawTextStatic(x, y, color, font, text) {
+    this.x = x;
+    this.y = y; 
+    this.text = text;
+    ctx = loadingPage.context;
+    ctx.font = font;
+    ctx.fillStyle = color;
+    ctx.fillText(this.text, this.x, this.y);
+}
+
+//draw text stroke with no update
+function drawTextStrokeStatic(x, y, color, font, text, lineWidth) {
+    this.x = x;
+    this.y = y; 
+    this.text = text;
+    ctx = loadingPage.context;
+    ctx.font = font;
+    ctx.lineWidth = lineWidth;
+    ctx.strokeStyle = color;
+    ctx.strokeText(this.text, this.x, this.y);
+}
+
+//draw loading bar with no update
+function drawLoadingBar(x, y, width, height, color) {
+    this.x = x;
+    this.y = y; 
+    this.width = width;
+    this.height = height;
+    ctx = loadingPage.context;
+    ctx.beginPath(); 
+    ctx.rect(x, y, width, height);
+    ctx.fillStyle = color;
+    ctx.fill();            
+    // console.log(x + " " + y + " " + width + " " + height + " " + color);
+}
+
+//draw text with update, it need to be updated after 2 s
+function drawText(x, y, color, font, text) {
+    this.x = x;
+    this.y = y; 
+    this.text = text;
+    this.update = function() {
+        ctx = loadingPage.context;
+        ctx.font = font;
+        ctx.fillStyle = color;
+        ctx.fillText(this.text, this.x, this.y);
+    }
+}
+
+//draw text stroke with update, it need to be updated after 2 s
+function drawTextStroke(x, y, color, font, text, lineWidth) {
+    this.x = x;
+    this.y = y; 
+    this.text = text;
+    this.update = function() {
+        ctx = loadingPage.context;
+        ctx.font = font;
+        ctx.lineWidth = lineWidth;
+        ctx.strokeStyle = color;
+        ctx.strokeText(this.text, this.x, this.y);
+    }
+}
+
+//draw begin button with update, it need to be updated after 2 s
+function drawBeginButton(x, y, color, font, text) {
+    // drawText(420, 400, "white", "50px Arial", "BEGIN");
+    this.x = x;
+    this.y = y;
+    this.text = text;
+    this.update = function() {
+        ctx = loadingPage.context;
+        ctx.font = font;
+        ctx.fillStyle = color;
+        ctx.fillText(this.text, this.x, this.y);
+    }
+    this.clicked = function() {
+        var myleft = this.x;
+        var myright = this.x + ctx.measureText(text).width;
+        var mytop = this.y;
+        var mybottom = this.y + 50;
+        var clicked = false;
+        if ((loadingPage.x > BEGIN.left) && (loadingPage.x < BEGIN.right) && (loadingPage.y > BEGIN.top) && (loadingPage.x < BEGIN.bottom)) {
+            clicked = true;
+        }
+        return clicked;
+    }
 
 }
 
-*/
+//load screen 2
+function loadWarning(){
+    loadingPage.drawBackground2();
+    warning = new drawTextStatic(220, 300, "black", "40px Arial", "YOU DON'T STAND A CHANCE");
+    setTimeout(function(){
+        document.getElementsByTagName("p")[0].style.visibility = "visible";
+        createNewElement("MUTE");
+        createNewElement("PAUSE");
+    // console.log(document.getElementsByTagName("span"));
+        var pause = document.getElementsByTagName("span")[2];
+        pause.onclick = function() {
+            if(pauseSwitch == true) pauseSwitch = false;
+            else pauseSwitch = true;
+        }
+        var mute = document.getElementsByTagName("span")[5];
+        mute.onclick = function() {
+            if(soundSwitch == true) soundSwitch = false;
+            else soundSwitch = true;
+        }
+        startGame();
+    }, 2000)
+}
+
+//update the screen 
+function updateSplash() {
+    loadingPage.clear();
+    if(loadingPage.x && loadingPage.y){
+        if(button.clicked()) {
+            loadingPage.stop();
+            loadWarning();
+            return;
+        }
+    }
+    loadingPage.drawBackground();
+    text1.update();   
+    text2.update();        
+    text3.update();        
+    text4.update();        
+    text5.update(); 
+    button.update();
+}
+
 
 function startGame(){
     //Begin
@@ -156,7 +342,7 @@ function startGame(){
     obs = new obstacles(game); 
     coins = new coinsForEat(game);
     myGamePiece = new component(20, 20, "red", 240, 210, "black", 3); 
-    document.getElementsByTagName("span")[5].innerHTML = deathTime;
+    document.getElementsByTagName("span")[9].innerHTML = deathTime;
     crashSound = new sound("soundeffects/RealisticPunch.mp3");
     themeSound = new sound("soundeffects/World'sHardestGame2ThemeSong.mp3");
     themeSound.play();
@@ -167,8 +353,15 @@ function startGame(){
 function createNewElement(text) {
     this.text = text;
     var span = document.createElement("span");
-    var node = document.createTextNode(text);
-    span.appendChild(node);
+    var span1 = document.createElement("span");
+    var node1 = document.createTextNode(text.charAt(0));
+    span1.appendChild(node1);
+    span1.style.textDecoration = "underline";
+    var span2 = document.createElement("span");
+    var node2 = document.createTextNode(text.substring(1));
+    span2.appendChild(node2);
+    span.appendChild(span1);
+    span.appendChild(span2);
     var element = document.getElementsByTagName("p");
     var child = document.getElementsByTagName("span");
     element[0].insertBefore(span, child[2]);
@@ -189,7 +382,7 @@ function sound(src) {
     }
 }
 
-
+//red square
 function component(width, height, color, x, y, colorStroke, lineWidth) {
     this.width = width;
     this.height = height;
@@ -259,36 +452,16 @@ function inside(point) {
     return inside;
 }
 
-
-
-
-//
-// function text(width, height, color, x, y, type) {
-//   this.type = type;
-//   this.width = width;
-//   this.height = height;
-//   this.speedX = 0;
-//   this.speedY = 0; 
-//   this.x = x;
-//   this.y = y; 
-//   this.update = function() {
-//     ctx = game.context;
-//     if (this.type == "text") {
-//       ctx.font = this.width + " " + this.height;
-//       ctx.fillStyle = color;
-//       ctx.fillText(this.text, this.x, this.y);        
-//     }
-//   }
-// }
-
 //Engine
 var game = {
     canvas: null,
     context : null,
     init : function() {
+        game.keys=[];
         this.canvas = document.querySelector("canvas");
         this.context = this.canvas.getContext("2d");
-        this.interval = setInterval(update, 20); 
+        if(pauseSwitch)
+            this.interval = setInterval(update, 20); 
         window.addEventListener('keydown', function(e){
             game.keys = (game.keys || []);
             game.keys[e.keyCode] = true;
@@ -299,6 +472,7 @@ var game = {
             e.preventDefault();
         })    
     },
+
     drawBackground: function(){
         if (this.context != undefined){
             var img = new Image;
@@ -392,18 +566,19 @@ function coin(name, x, y, radius, color, colorStroke, lineWidth){
     this.y = y,
     this.radius = radius,
     this.color = color,
-    this.animate = function(ctx){
-        //Draw coin
+    this.speed = 1,
+    this.animate = function(ctx) {
         ctx.fillStyle = this.color;
         ctx.beginPath();
         ctx.strokeStyle = colorStroke;
         ctx.lineWidth = lineWidth;
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, true);
+        ctx.ellipse(this.x, this.y, this.radius, 7, 0, 0, 2 * Math.PI);
         ctx.fill();
         ctx.stroke();
-
-        //animate 
-
+        if (this.radius > 7 || this.radius <= 0){
+          this.speed = -this.speed;
+        }
+        this.radius -= this.speed
     }
 }
 
@@ -412,7 +587,8 @@ function update() {
     for(var i = 0; i < obs.balls.length; i++){
         if(myGamePiece.crashWith(obs.balls[i])){
             deathTime += 1;
-            crashSound.play();
+            if(soundSwitch)
+                crashSound.play();
             game.stop();
             themeSound.stop();
             collectCoin = [false, false, false];
@@ -424,7 +600,7 @@ function update() {
     //eat a coin
     for(var i = 0; i < collectCoin.length; i++){
         if(myGamePiece.crashWith(coins.coins[i])){
-            if(!collectCoin[i])
+            if(!collectCoin[i] && soundSwitch)
                 coinSound.play();
             collectCoin[i] = true;
             game.clear();
@@ -433,27 +609,40 @@ function update() {
 
     // win the game
     if(collectCoin[0] && collectCoin[1] && collectCoin[2] &&
-     myGamePiece.x > 720){
+     myGamePiece.x > 730){
         game.stop();
         themeSound.stop();
         deathTime = 0;
         collectCoin = [false, false, false];
-        // alert("you made it!");
-        // window.addEventListener('onclick', game.clear());
-        setTimeout(startGame, 1000);
-        return;
+        alert("you made it!");
+        startGame();
+
+
+    }
+    if(!soundSwitch) {
+        themeSound.stop();
+    }
+    if(soundSwitch) {
+        themeSound.play();
+    }
+    if(!pauseSwitch)
+        themeSound.stop();
+
+    if(pauseSwitch) {
+        game.clear();
+        obs.animate();
+        coins.animate();
+        stopMove();
+        if(game.keys && game.keys[37]){myGamePiece.speedX = -2;}
+        if(game.keys && game.keys[39]){myGamePiece.speedX = 2;}
+        if(game.keys && game.keys[38]){myGamePiece.speedY = -2;}
+        if(game.keys && game.keys[40]){myGamePiece.speedY = 2;}
+        myGamePiece.newPos();
+        myGamePiece.update();
     }
 
-    game.clear();
-    obs.animate();
-    coins.animate();
-    stopMove();
-    if(game.keys && game.keys[37]){myGamePiece.speedX = -2;}
-    if(game.keys && game.keys[39]){myGamePiece.speedX = 2;}
-    if(game.keys && game.keys[38]){myGamePiece.speedY = -2;}
-    if(game.keys && game.keys[40]){myGamePiece.speedY = 2;}
-    myGamePiece.newPos();
-    myGamePiece.update();
+    console.log(pauseSwitch);
+ 
 }
 
 
@@ -461,4 +650,6 @@ function stopMove() {
     myGamePiece.speedX = 0;
     myGamePiece.speedY = 0;
 }
+
+
 
