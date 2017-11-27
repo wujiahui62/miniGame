@@ -1,3 +1,14 @@
+/*
+    Kent State University
+    CS 44105/54105 Web Programming I
+    Fall 2017
+    Assignment 3
+    The World’s Hardest Game 2 Remake
+    worldshardestgame.css
+    Author 1: Abdulkareem Alali, aalali1@kent.edu
+    Author 2: Jiahui Wu, wujiahui62@gmail.com
+*/
+
 const DARKBLUE = 'rgb(0,0,139)';
 const BLACK = 'black';
 const BACKGROUND_IMAGE = "images/world-hardest-game-2-bg-level-1.png";
@@ -280,6 +291,7 @@ function drawBeginButton(x, y, color, font, text) {
     	ctx.fillText(this.text, this.x, this.y);
     }
 
+//check if the button is clicked
     this.clicked = function() {
         var clicked = false;
         if (mouse_clicked && (loadingPage.x > BEGIN.left) && (loadingPage.x < BEGIN.right) && (loadingPage.y > BEGIN.top) && (loadingPage.y < BEGIN.bottom)) {
@@ -288,6 +300,7 @@ function drawBeginButton(x, y, color, font, text) {
         return clicked;
     }
 
+//check if the button is hovered
     this.hovered = function () {
 
         var hovered = false;
@@ -359,6 +372,7 @@ function startGame(){
 }
 
 //create a function to add "pause" and "mute" to the paragraph
+//the html would be <span><span style = "underline">M</span><span>UTE</span></span>
 function createNewElement(text) {
     this.text = text;
     var span = document.createElement("span");
@@ -625,13 +639,12 @@ function update() {
         collectCoin = [false, false, false];
         alert("You Made It!");
         startGame();
-
-
     }
+
     if(!soundSwitch) {
         themeSound.stop();
     }
-    if(soundSwitch) {
+    if(soundSwitch && pauseSwitch) {
         themeSound.play();
     }
     if(!pauseSwitch)
@@ -649,6 +662,16 @@ function update() {
         myGamePiece.newPos();
         myGamePiece.update();
     } 
+    //pause the game with ctrl + p
+    if(game.keys[17] && game.keys[80]) {
+        if(pauseSwitch) pauseSwitch = false;
+        else pauseSwitch = true;
+    }
+    //mute the game with ctrl + m
+    if(game.keys[17] && game.keys[77]) {
+        if(soundSwitch) soundSwitch = false;
+        else soundSwitch = true;
+    }
 }
 
 
