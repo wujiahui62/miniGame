@@ -2,6 +2,7 @@ const DARKBLUE = 'rgb(0,0,139)';
 const BLACK = 'black';
 const BACKGROUND_IMAGE = "images/world-hardest-game-2-bg-level-1.png";
 const SCREENS = {
+
     screen3 : {
         gameCenterWall : {
             top : 100,
@@ -30,18 +31,18 @@ const SCREENS = {
 
 const BALLS = {
     pair1 : {
-        ball1 : ["p1b1", 400, 113, 11, 1, DARKBLUE, BLACK, 3],
-        ball2 : ["p1b2", 443, 113, 11, 1, DARKBLUE, BLACK, 3],
+        ball1 : ["p1b1", 400, 113, 11, 2, DARKBLUE, BLACK, 3],
+        ball2 : ["p1b2", 443, 113, 11, 2, DARKBLUE, BLACK, 3],
     },
 
     pair2 : {
-        ball1 : ["p1b3", 485, 339, 11, 1, DARKBLUE, BLACK, 3],
-        ball2 : ["p1b4", 529, 339, 11, 1, DARKBLUE, BLACK, 3],
+        ball1 : ["p1b3", 485, 339, 11, 2, DARKBLUE, BLACK, 3],
+        ball2 : ["p1b4", 529, 339, 11, 2, DARKBLUE, BLACK, 3],
     },
 
     pair3 : {
-        ball1 : ["p1b5", 570, 113, 11, 1, DARKBLUE, BLACK, 3],
-        ball2 : ["p1b6", 613, 113, 11, 1, DARKBLUE, BLACK, 3],
+        ball1 : ["p1b5", 570, 113, 11, 2, DARKBLUE, BLACK, 3],
+        ball2 : ["p1b6", 613, 113, 11, 2, DARKBLUE, BLACK, 3],
 
     }
 }
@@ -53,10 +54,10 @@ const COINS = {
 }
 
 const BEGIN = {
-    left: 437,
-    right: 587,
-    top: 459,
-    bottom: 685,
+    left: 520,
+    right: 690,
+    top: 640,
+    bottom: 697,
 }
 
 var obs;
@@ -79,23 +80,13 @@ var themeSound;
 var coinSound;
 var collectCoin = [false, false, false];
 var beginned = false;
-var button;
-var text1;
-var text2;
-var text3;
-var text4;
-var text5;
-var text6;
-var text1_s;
-var text2_s;
-var text3_s;
-var text4_s;
-var text5_s;
-var text6_s;
+var button = null;
+var loadingBarLength = 0;
+var textLength = 1000;
 var warning;
 var pauseSwitch = true;
 var soundSwitch = true;
-
+var mouse_clicked = false;
 
 var newStyle = document.createElement('style');
 newStyle.appendChild(document.createTextNode('@font-face {font-family: mono45-headline;src: url("https://use.typekit.net/af/2242e8/00000000000000003b9afa2a/27/l?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n5&v=3") format("woff2"),url("https://use.typekit.net/af/2242e8/00000000000000003b9afa2a/27/d?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n5&v=3") format("woff"),url("https://use.typekit.net/af/2242e8/00000000000000003b9afa2a/27/a?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n5&v=3") format("opentype");'));
@@ -107,78 +98,126 @@ window.addEventListener("load", function(){
 
 function loadSplash(){
     document.getElementsByTagName("p")[0].style.visibility = "hidden";
-    //this page is not updated
-    drawDisplay();
-    //start to update the page with setInterval after 2 seconds
-    setTimeout(function() {
-        loadingPage.init();
-        text1 = new drawText(35, 100, "white", "35px Arial", "THE WORLD'S");
-        text2 = new drawTextStroke(35, 230, "white", "172px mono45-headline", "HARDEST GAME", 6);
-        text3 = new drawTextStroke(35, 230, "black", "172px mono45-headline", "HARDEST GAME", 3);
-        text4 = new drawText(35, 230, "blue", "172px mono45-headline", "HARDEST GAME");
-        text5 = new drawText(730, 268, "white", "35px Arial", "VERSION 2.0");
-        button = new drawBeginButton(420, 400, "white", "50px Arial", "BEGIN");
-    }, 2000);
+    loadingPage.init();
+    button = new drawBeginButton(420, 400, "white", "50px Arial", "BEGIN");
 }
 
 var loadingPage = {
     canvas: null,
     context : null,
-    staticInit : function() {
-        this.canvas = document.querySelector("canvas");
-        this.context = this.canvas.getContext("2d");
-    },
 
     init : function() {
         this.canvas = document.querySelector("canvas");
         this.context = this.canvas.getContext("2d");
         this.interval = setInterval(updateSplash, 20);
+
         window.addEventListener('mousedown', function (e) {
+            mouse_clicked = true;
             loadingPage.x = e.pageX;
             loadingPage.y = e.pageY;
-            // alert(loadingPage.x + " " + loadingPage.y);
+            e.preventDefault();
         })
         window.addEventListener('mouseup', function (e) {
             loadingPage.x = false;
             loadingPage.y = false;
+            mouse_clicked = false;
+
+            e.preventDefault();
+
         })
         window.addEventListener('touchstart', function (e) {
+            mouse_clicked = true;
             loadingPage.x = e.pageX;
             loadingPage.y = e.pageY;
+            e.preventDefault();
+
         })
         window.addEventListener('touchend', function (e) {
+            mouse_clicked = false;
             loadingPage.x = false;
             loadingPage.y = false;
+            e.preventDefault();
+
         })
-        // window.addEventListener('mousemove', function (e) {
-        //     loadingPage.x = e.pageX;
-        //     loadingPage.y = e.pageY;
-        // })
+
+        window.addEventListener('mousemove', function (e) {
+            loadingPage.x = e.pageX;
+            loadingPage.y = e.pageY;
+            e.preventDefault();
+
+        })
 
     },
 
     //background of screen 1
     drawBackground: function() {
         if(this.context != undefined) {
-            // this.context.beginPath();
-            grd = this.context.createLinearGradient(0, 0, this.canvas.width, 0);
-            grd.addColorStop(0, "black");
-            grd.addColorStop(1, "grey");
-            this.context.fillStyle = grd;
-            this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
+            var ctx = this.context;
+            grd3 = ctx.createLinearGradient(250, 450, 350, 0);
+            grd3.addColorStop(0, "#242421");
+            grd3.addColorStop(0.25, "#262626");
+            grd3.addColorStop(0.5, "#4E4E4E");
+            grd3.addColorStop(0.75, "#262626");
+            grd3.addColorStop(1, "#000100");
+            ctx.fillStyle = grd3;
+            ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    		drawText(35, 100, "white", "35px Arial", "THE WORLD'S");
+       		drawTextStroke(35, 230, "white", "172px mono45-headline", "HARDEST GAME", 10);
+        	drawTextStroke(35, 230, "black", "172px mono45-headline", "HARDEST GAME", 6);
+        	drawGradientText(35, 230, "#6096E7", "#164F94", "HARDEST GAME");
+        	drawText(730, 268, "white", "35px Arial", "VERSION 2.0");
+        	this.animate();
         }
     },
+
+    drawBackground1: function() {
+        if(this.context != undefined) {
+            var ctx = this.context;
+            grd3 = ctx.createLinearGradient(250, 450, 350, 0);
+            grd3.addColorStop(0, "#242421");
+            grd3.addColorStop(0.25, "#262626");
+            grd3.addColorStop(0.5, "#4E4E4E");
+            grd3.addColorStop(0.75, "#262626");
+            grd3.addColorStop(1, "#000100");
+            ctx.fillStyle = grd3;
+            ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    		drawText(35, 100, "white", "35px Arial", "THE WORLD'S");
+       		drawTextStroke(35, 230, "white", "172px mono45-headline", "HARDEST GAME", 10);
+        	drawTextStroke(35, 230, "black", "172px mono45-headline", "HARDEST GAME", 6);
+        	drawGradientText(35, 230, "#6096E7", "#164F94", "HARDEST GAME");
+        	drawText(730, 268, "white", "35px Arial", "VERSION 2.0");
+        }
+    },
+
+
+    //draw the three lines of text in the loading page
 
     //background of screen 2
     drawBackground2: function() {
         if(this.context != undefined) {
-            // this.context.beginPath();
             grd = this.context.createLinearGradient(0, 0, 0, this.canvas.height);
             grd.addColorStop(0, "#E8E9FE");
             grd.addColorStop(1, "#AFB1FE");
             this.context.fillStyle = grd;
             this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
         }
+    },
+
+
+    animate: function() {
+    	if(this.context != undefined) {
+    		var ctx = this.context;
+    		var speed = 3;
+    		var text = "This is the world's hardest game. It is harder than any game you have ever played, or ever will play.";
+    		ctx.font = "17px Arial";
+    		textLength = ctx.measureText(text).width;
+    		drawText(110, 420, "white", ctx.font, text);
+    		var speed = textLength / 100;
+    		loadingBarLength += speed;
+    		ctx.fillStyle = "white";
+    		ctx.fillRect(110, 390, loadingBarLength, 10);
+    	}
+
     },
 
     clear : function() {
@@ -190,21 +229,8 @@ var loadingPage = {
     }   
 }
 
-//display the first image onload
-function drawDisplay() {
-    loadingPage.staticInit();
-    loadingPage.drawBackground();
-    text1_s = drawTextStatic(35, 100, "white", "35px Arial", "THE WORLD'S");
-    text2_s = drawTextStrokeStatic(35, 230, "white", "172px mono45-headline", "HARDEST GAME", 6);
-    text3_s = drawTextStrokeStatic(35, 230, "black", "172px mono45-headline", "HARDEST GAME", 3);
-    text4_s = drawTextStatic(35, 230, "blue", "172px mono45-headline", "HARDEST GAME");
-    text5_s = drawTextStatic(730, 268, "white", "35px Arial", "VERSION 2.0");
-    loadingBar = drawLoadingBar(100, 500, 500, 20, "white");
-    text6_s = drawTextStatic(160, 400, "white", "15px Arial", "This is the world's hardest game. It is harder than any game you have ever played, or ever will play.");
-}
-
-//draw text with no update
-function drawTextStatic(x, y, color, font, text) {
+//draw text 
+function drawText(x, y, color, font, text) {
     this.x = x;
     this.y = y; 
     this.text = text;
@@ -214,8 +240,8 @@ function drawTextStatic(x, y, color, font, text) {
     ctx.fillText(this.text, this.x, this.y);
 }
 
-//draw text stroke with no update
-function drawTextStrokeStatic(x, y, color, font, text, lineWidth) {
+//draw text stroke 
+function drawTextStroke(x, y, color, font, text, lineWidth) {
     this.x = x;
     this.y = y; 
     this.text = text;
@@ -226,69 +252,49 @@ function drawTextStrokeStatic(x, y, color, font, text, lineWidth) {
     ctx.strokeText(this.text, this.x, this.y);
 }
 
-//draw loading bar with no update
-function drawLoadingBar(x, y, width, height, color) {
-    this.x = x;
-    this.y = y; 
-    this.width = width;
-    this.height = height;
-    ctx = loadingPage.context;
-    ctx.beginPath(); 
-    ctx.rect(x, y, width, height);
-    ctx.fillStyle = color;
-    ctx.fill();            
-    // console.log(x + " " + y + " " + width + " " + height + " " + color);
-}
-
-//draw text with update, it need to be updated after 2 s
-function drawText(x, y, color, font, text) {
-    this.x = x;
-    this.y = y; 
-    this.text = text;
-    this.update = function() {
-        ctx = loadingPage.context;
-        ctx.font = font;
-        ctx.fillStyle = color;
-        ctx.fillText(this.text, this.x, this.y);
-    }
-}
-
-//draw text stroke with update, it need to be updated after 2 s
-function drawTextStroke(x, y, color, font, text, lineWidth) {
-    this.x = x;
-    this.y = y; 
-    this.text = text;
-    this.update = function() {
-        ctx = loadingPage.context;
-        ctx.font = font;
-        ctx.lineWidth = lineWidth;
-        ctx.strokeStyle = color;
-        ctx.strokeText(this.text, this.x, this.y);
-    }
+//fill the text with gradient color
+function drawGradientText(x, y, color1, color2, text) {
+	this.x = x;
+	this.y = y;
+	this.text = text;
+	this.color1 = color1;
+	this.color2 = color2;
+	ctx = loadingPage.context;
+	grd = ctx.createLinearGradient(0, 0, 0, 200);
+	grd.addColorStop(0, color1);
+	grd.addColorStop(1, color2);
+	ctx.fillStyle = grd;
+	ctx.fillText('HARDEST GAME', x, y);
 }
 
 //draw begin button with update, it need to be updated after 2 s
 function drawBeginButton(x, y, color, font, text) {
-    // drawText(420, 400, "white", "50px Arial", "BEGIN");
     this.x = x;
     this.y = y;
     this.text = text;
+    this.color = color;
     this.update = function() {
-        ctx = loadingPage.context;
-        ctx.font = font;
-        ctx.fillStyle = color;
-        ctx.fillText(this.text, this.x, this.y);
+    	ctx = loadingPage.context;
+    	ctx.font = font;
+    	ctx.fillStyle = color;
+    	ctx.fillText(this.text, this.x, this.y);
     }
+
     this.clicked = function() {
-        var myleft = this.x;
-        var myright = this.x + ctx.measureText(text).width;
-        var mytop = this.y;
-        var mybottom = this.y + 50;
         var clicked = false;
-        if ((loadingPage.x > BEGIN.left) && (loadingPage.x < BEGIN.right) && (loadingPage.y > BEGIN.top) && (loadingPage.x < BEGIN.bottom)) {
+        if (mouse_clicked && (loadingPage.x > BEGIN.left) && (loadingPage.x < BEGIN.right) && (loadingPage.y > BEGIN.top) && (loadingPage.y < BEGIN.bottom)) {
             clicked = true;
         }
         return clicked;
+    }
+
+    this.hovered = function () {
+
+        var hovered = false;
+        if ((loadingPage.x > BEGIN.left) && (loadingPage.x < BEGIN.right) && (loadingPage.y > BEGIN.top) && (loadingPage.y < BEGIN.bottom)) {
+            hovered = true;
+        }
+        return hovered;
     }
 
 }
@@ -296,12 +302,11 @@ function drawBeginButton(x, y, color, font, text) {
 //load screen 2
 function loadWarning(){
     loadingPage.drawBackground2();
-    warning = new drawTextStatic(220, 300, "black", "40px Arial", "YOU DON'T STAND A CHANCE");
+    warning = new drawText(220, 300, "black", "40px Arial", "YOU DON'T STAND A CHANCE");
     setTimeout(function(){
         document.getElementsByTagName("p")[0].style.visibility = "visible";
         createNewElement("MUTE");
         createNewElement("PAUSE");
-    // console.log(document.getElementsByTagName("span"));
         var pause = document.getElementsByTagName("span")[2];
         pause.onclick = function() {
             if(pauseSwitch == true) pauseSwitch = false;
@@ -318,23 +323,27 @@ function loadWarning(){
 
 //update the screen 
 function updateSplash() {
-    loadingPage.clear();
-    if(loadingPage.x && loadingPage.y){
-        if(button.clicked()) {
-            loadingPage.stop();
-            loadWarning();
-            return;
-        }
-    }
-    loadingPage.drawBackground();
-    text1.update();   
-    text2.update();        
-    text3.update();        
-    text4.update();        
-    text5.update(); 
-    button.update();
-}
+	loadingPage.clear();
+	loadingPage.drawBackground();
+	if(loadingBarLength > textLength) {
+		loadingPage.clear();
+		loadingPage.drawBackground1();
+		if(button.hovered()){
+			button = new drawBeginButton(420, 400, "#808080", "50px Arial", "BEGIN");
+		}
+		else{
+			button = new drawBeginButton(420, 400, "white", "50px Arial", "BEGIN");
 
+		}
+		if(button.clicked()) {
+			loadingPage.stop();
+			loadWarning();
+			return;
+		}
+		button.update();
+	}
+
+}
 
 function startGame(){
     //Begin
@@ -614,7 +623,7 @@ function update() {
         themeSound.stop();
         deathTime = 0;
         collectCoin = [false, false, false];
-        alert("you made it!");
+        alert("You Made It!");
         startGame();
 
 
@@ -639,10 +648,7 @@ function update() {
         if(game.keys && game.keys[40]){myGamePiece.speedY = 2;}
         myGamePiece.newPos();
         myGamePiece.update();
-    }
-
-    console.log(pauseSwitch);
- 
+    } 
 }
 
 
