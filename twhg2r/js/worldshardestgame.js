@@ -99,6 +99,7 @@ var pauseSwitch = true;
 var soundSwitch = true;
 var mouse_clicked = false;
 
+//use font-face to use mono45
 var newStyle = document.createElement('style');
 newStyle.appendChild(document.createTextNode('@font-face {font-family: mono45-headline;src: url("https://use.typekit.net/af/2242e8/00000000000000003b9afa2a/27/l?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n5&v=3") format("woff2"),url("https://use.typekit.net/af/2242e8/00000000000000003b9afa2a/27/d?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n5&v=3") format("woff"),url("https://use.typekit.net/af/2242e8/00000000000000003b9afa2a/27/a?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n5&v=3") format("opentype");'));
 document.head.appendChild(newStyle);
@@ -108,6 +109,7 @@ window.addEventListener("load", function(){
     });
 
 function loadSplash(){
+    //hide the content of first p
     document.getElementsByTagName("p")[0].style.visibility = "hidden";
     loadingPage.init();
     button = new drawBeginButton(420, 400, "white", "50px Arial", "BEGIN");
@@ -132,9 +134,7 @@ var loadingPage = {
             loadingPage.x = false;
             loadingPage.y = false;
             mouse_clicked = false;
-
             e.preventDefault();
-
         })
         window.addEventListener('touchstart', function (e) {
             mouse_clicked = true;
@@ -160,7 +160,7 @@ var loadingPage = {
 
     },
 
-    //background of screen 1
+    //background of screen 1 with animation
     drawBackground: function() {
         if(this.context != undefined) {
             var ctx = this.context;
@@ -181,6 +181,22 @@ var loadingPage = {
         }
     },
 
+    animate: function() {
+        if(this.context != undefined) {
+            var ctx = this.context;
+            var speed = 3;
+            var text = "This is the world's hardest game. It is harder than any game you have ever played, or ever will play.";
+            ctx.font = "17px Arial";
+            textLength = ctx.measureText(text).width;
+            drawText(110, 420, "white", ctx.font, text);
+            var speed = textLength / 100;
+            loadingBarLength += speed;
+            ctx.fillStyle = "white";
+            ctx.fillRect(110, 390, loadingBarLength, 10);
+        }
+    },
+
+    //background of screen 1 without animation
     drawBackground1: function() {
         if(this.context != undefined) {
             var ctx = this.context;
@@ -200,9 +216,6 @@ var loadingPage = {
         }
     },
 
-
-    //draw the three lines of text in the loading page
-
     //background of screen 2
     drawBackground2: function() {
         if(this.context != undefined) {
@@ -212,23 +225,6 @@ var loadingPage = {
             this.context.fillStyle = grd;
             this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
         }
-    },
-
-
-    animate: function() {
-    	if(this.context != undefined) {
-    		var ctx = this.context;
-    		var speed = 3;
-    		var text = "This is the world's hardest game. It is harder than any game you have ever played, or ever will play.";
-    		ctx.font = "17px Arial";
-    		textLength = ctx.measureText(text).width;
-    		drawText(110, 420, "white", ctx.font, text);
-    		var speed = textLength / 100;
-    		loadingBarLength += speed;
-    		ctx.fillStyle = "white";
-    		ctx.fillRect(110, 390, loadingBarLength, 10);
-    	}
-
     },
 
     clear : function() {
@@ -275,7 +271,7 @@ function drawGradientText(x, y, color1, color2, text) {
 	grd.addColorStop(0, color1);
 	grd.addColorStop(1, color2);
 	ctx.fillStyle = grd;
-	ctx.fillText('HARDEST GAME', x, y);
+	ctx.fillText(text, x, y);
 }
 
 //draw begin button with update, it need to be updated after 2 s
@@ -312,7 +308,31 @@ function drawBeginButton(x, y, color, font, text) {
 
 }
 
-//load screen 2
+//update the screen 
+function updateSplash() {
+    loadingPage.clear();
+    loadingPage.drawBackground();
+    if(loadingBarLength > textLength) {
+        loadingPage.clear();
+        loadingPage.drawBackground1();
+        if(button.hovered()){
+            button = new drawBeginButton(420, 400, "#808080", "50px Arial", "BEGIN");
+        }
+        else{
+            button = new drawBeginButton(420, 400, "white", "50px Arial", "BEGIN");
+
+        }
+        if(button.clicked()) {
+            loadingPage.stop();
+            loadWarning();
+            return;
+        }
+        button.update();
+    }
+
+}
+
+//load screen 2, after 2s, start the game
 function loadWarning(){
     loadingPage.drawBackground2();
     warning = new drawText(220, 300, "black", "40px Arial", "YOU DON'T STAND A CHANCE");
@@ -332,30 +352,6 @@ function loadWarning(){
         }
         startGame();
     }, 2000)
-}
-
-//update the screen 
-function updateSplash() {
-	loadingPage.clear();
-	loadingPage.drawBackground();
-	if(loadingBarLength > textLength) {
-		loadingPage.clear();
-		loadingPage.drawBackground1();
-		if(button.hovered()){
-			button = new drawBeginButton(420, 400, "#808080", "50px Arial", "BEGIN");
-		}
-		else{
-			button = new drawBeginButton(420, 400, "white", "50px Arial", "BEGIN");
-
-		}
-		if(button.clicked()) {
-			loadingPage.stop();
-			loadWarning();
-			return;
-		}
-		button.update();
-	}
-
 }
 
 function startGame(){
@@ -385,6 +381,8 @@ function createNewElement(text) {
     span2.appendChild(node2);
     span.appendChild(span1);
     span.appendChild(span2);
+//let the cursor be pointer when hovering over pause and mute
+    span.style.cursor = "pointer";
     var element = document.getElementsByTagName("p");
     var child = document.getElementsByTagName("span");
     element[0].insertBefore(span, child[2]);
