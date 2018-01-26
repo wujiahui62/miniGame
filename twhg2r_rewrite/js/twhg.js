@@ -160,7 +160,7 @@ SCREENONE.prototype.init = function() {
         w = s1.w,
         b = s1.b,
         lg;
-    //绘制文字背景
+    //draw text backgroun
     lg = ctx.createLinearGradient(0, b, w, 0);
     lg.addColorStop(0, c1);
     lg.addColorStop(0.5, c2);
@@ -168,18 +168,18 @@ SCREENONE.prototype.init = function() {
     ctx.fillStyle = lg;
     ctx.fillRect(0, 0, w, b);
 
-    //白色描边
+    //white edge
     ctx.font = " bold 100px  mono45-headline";
     ctx.textAlign = 'center';
     ctx.lineWidth = 8;
     ctx.strokeStyle = WHITE;
     w = ctx.measureText('HARDEST GAME').width / 2;
     ctx.strokeText('HARDEST GAME', 500, 160);
-    //黑色描边
+    //black edge
     ctx.lineWidth = 6;
     ctx.strokeStyle = BLACK;
     ctx.strokeText('HARDEST GAME', 500, 160);
-    //蓝色填充
+    //blue fill
     lg = ctx.createLinearGradient(0, 0, 0, 160);
     lg.addColorStop(0, color2);
     lg.addColorStop(0.5, color1);
@@ -195,7 +195,6 @@ SCREENONE.prototype.init = function() {
     ctx.fillText('THE WORLD’S', 500 - w, 60);
     ctx.textAlign = 'right';
     ctx.fillText('VERSION 2.0', 500 + w, 200);
-    //加载动画;
     this.animate();
 };
 SCREENONE.prototype.animate = function() {
@@ -211,7 +210,7 @@ SCREENONE.prototype.animate = function() {
     ctx.fillStyle = WHITE;
     ctx.strokeStyle = WHITE;
     ctx.lineWidth = 2;
-    //计算进度条宽度和速度
+    //loading bar 
     w = ctx.measureText(txt).width;
     speed = w / (2000 / 20);
     this.animateWidth += speed;
@@ -220,7 +219,7 @@ SCREENONE.prototype.animate = function() {
         ctx.strokeRect((1000 - w) / 2, b - 50, w, 10);
         ctx.fillRect((1000 - w) / 2, b - 50, this.animateWidth, 10);
     } else {
-        //进度条加载完成后显示.begin
+        //showbegin
         ctx.font = '46px Arial';
         ctx.textAlign = 'center';
         ctx.fillStyle = WHITE;
@@ -286,5 +285,4 @@ SCREENTWO.prototype.init = function() {
     ctx.textAlign = 'center';
     ctx.fillText("YOU DON'T STAND A CHANCE", 500, 200);
     this.speed += 20;
-
 }
