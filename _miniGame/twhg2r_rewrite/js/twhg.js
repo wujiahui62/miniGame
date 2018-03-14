@@ -71,7 +71,6 @@ var newStyle = document.createElement('style');
 newStyle.appendChild(document.createTextNode('@font-face {font-family: mono45-headline;src: url("https://use.typekit.net/af/2242e8/00000000000000003b9afa2a/27/l?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n5&v=3") format("woff2"),url("https://use.typekit.net/af/2242e8/00000000000000003b9afa2a/27/d?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n5&v=3") format("woff"),url("https://use.typekit.net/af/2242e8/00000000000000003b9afa2a/27/a?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n5&v=3") format("opentype");'));
 document.head.appendChild(newStyle);
 
-
 window.addEventListener("load", function() {
     //DOM Loaded
     document.querySelector('p').style.display = 'none';
@@ -231,7 +230,7 @@ SCREENONE.prototype.init = function() {
         w = s1.w,
         b = s1.b,
         lg;
-    //绘制文字背景
+    //draw text background
     lg = ctx.createLinearGradient(0, b, w, 0);
     lg.addColorStop(0, c1);
     lg.addColorStop(0.5, c2);
@@ -239,18 +238,18 @@ SCREENONE.prototype.init = function() {
     ctx.fillStyle = lg;
     ctx.fillRect(0, 0, w, b);
 
-    //白色描边
+    //white liner
     ctx.font = " bold 100px  mono45-headline";
     ctx.textAlign = 'center';
     ctx.lineWidth = 8;
     ctx.strokeStyle = WHITE;
     w = ctx.measureText('HARDEST GAME').width / 2;
     ctx.strokeText('HARDEST GAME', 500, 160);
-    //黑色描边
+    //black liner
     ctx.lineWidth = 6;
     ctx.strokeStyle = BLACK;
     ctx.strokeText('HARDEST GAME', 500, 160);
-    //蓝色填充
+    //fill blue
     lg = ctx.createLinearGradient(0, 0, 0, 160);
     lg.addColorStop(0, color2);
     lg.addColorStop(0.5, color1);
@@ -264,8 +263,8 @@ SCREENONE.prototype.init = function() {
     ctx.textAlign = 'left';
     ctx.fillText("THE WORLD'S", 500 - w, 60);
     ctx.textAlign = 'right';
-    ctx.fillText('VERSION 2.0', 500 + w, 200);
-    //加载动画;
+    ctx.fillText("VERSION 2.0", 500 + w, 200);
+    //animate
     this.animate();
 };
 SCREENONE.prototype.animate = function() {
@@ -281,7 +280,7 @@ SCREENONE.prototype.animate = function() {
     ctx.fillStyle = WHITE;
     ctx.strokeStyle = WHITE;
     ctx.lineWidth = 2;
-    //计算进度条宽度和速度
+    //calculate the length of loading bar
     w = ctx.measureText(txt).width;
     speed = w / (2000 / 20);
     this.animateWidth += speed;
@@ -290,7 +289,7 @@ SCREENONE.prototype.animate = function() {
         ctx.strokeRect((1000 - w) / 2, b - 50, w, 10);
         ctx.fillRect((1000 - w) / 2, b - 50, this.animateWidth, 10);
     } else {
-        //进度条加载完成后显示.begin
+        //show begin after loading
         ctx.font = '46px Arial';
         ctx.textAlign = 'center';
         ctx.fillStyle = WHITE;
